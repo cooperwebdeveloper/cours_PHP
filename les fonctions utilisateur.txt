@@ -1,0 +1,19 @@
+declaration prealable obligatoire ---> function functionName(param1, param2){
+    // liste des instructions;
+    // les parametres ne sont pas obligatoires mais les parentheses oui.     
+}
+
+appel d'une fonction -------> nomDeLaFonction(param);
+/\ attention de ne pas oublier le point virgule et les parentheses meme si  notre fonction n'a pas de parametres
+
+
+<?php 
+
+function myDate(){
+  echo date('d/m/y h:i');
+}
+myDate();
+
+
+//// les parametres 
+

@@ -1,0 +1,179 @@
+concatenation:
+$hello = 'Bonjour';
+$username = 'John';
+
+echo $hello.$username; // BonjourJohn
+echo $hello. ' ' .$username; // Bonjour John 
+
+
+//////
+
+$hello = "Bonjour $username"; // Bonjour John //ne pas utiliser car mauvaise visibilite
+
+bonne pratique: 
+$hello = 'Bonjour '.$username; // Bonjour John
+
+<?php
+
+$euro = 3.12;
+
+define('EURO_DOLLAR', 1.08);
+define('EURO_YEN', 120.34);
+define('EURO_BITCOIN', 0.00016);
+
+$euroToDollar = $euro * EURO_DOLLAR;
+$euroToYen = $euro * EURO_YEN;
+$euroToBitcoin = $euro * EURO_BITCOIN;
+
+echo $euro.' euros = '.$euroToDollar.' dollars, '.$euroToYen.' yens et '.$euroToBitcoin.' bitcoins';
+
+-----------LES FONCTIONS INTERNES PHP---------------
+
+A l'aide de la documentation determinez les elements suivants concernant la fonction is_bool:
+
+Son utilité : determine si une variable est un booleen
+Le parametre attendu en entree : une variable a evaluer 
+retourne true si la variable est un booleen et false si elle ne l'est pas
+
+
+------la fonction min() prend en parametres des variables (ou un tableau) et renvoie la plus petite des variables
+
+
+-------la fonction empty():
+
+empty determine si une variable est vide 
+une variable est consideree comme vide si elle n'existe pas ou si la valeur equivaut a false
+valeurs considerees comme vides:
+"" une chaine vide 
+0 en tant qu'entier
+0.0 en tant que nombre a virgule flottante 
+"0" en tant que chaine de caracteres
+NULL 
+false
+array() Un tableau vide 
+
+valeurs de retour: 
+retourne true si la variable n'existe pas ou a une valeur vide ou egale a zero 
+
+
+<?php
+
+$array = [];
+
+// Affichera "true"
+var_dump(empty($array));
+
+
+<?php
+
+$var1 = 'foo';
+$var2 = [];
+$var3 = 0;
+
+echo 'var 1 : ';
+var_dump (empty($var1)) . PHP_EOL;
+echo 'var 2 : ';
+var_dump (empty($var2)). PHP_EOL;
+echo 'var 3 : ';
+var_dump (empty($var3)). PHP_EOL;
+
+//var 1 : bool(false) var 2 : bool(true) var 3 : bool(true)
+
+-----la fonction isset()permet de verifier qu'une variable a bien ete declaree et qu'elle n'est pas nulle:
+
+<?php
+
+$name = 'Hugo';
+
+// Affichera true
+echo isset($name);
+
+// Affichera false
+echo isset($city);
+
+------la fonction unset() permet de detruire une variable
+
+<?php
+
+$name = 'Nathalie';
+
+// Affichera true
+echo isset($name);
+// Destruction de la variable
+unset($name);
+// Affichera désormais false
+echo isset($name);
+
+---- verifier le type d'une variable : is_array() is_int()
+
+/////// MANIPULER LES CHAINES DE CARACTERES:
+
+PHP_OS renvoie le systeme d'exploitation sur lequel l'executable PHP a ete compilé
+PHP_EOL renvoie une chaine correspondant au saut de ligne sur la plateforme
+Un script CLI est un script qui s'execute sur la ligne de commande 
+
+
+<?php
+
+$var = 'Une ChaIne dE caractERes';
+
+// Affichera "une chaine de caracteres"
+echo strtolower($var) . PHP_EOL;
+// Affichera "UNE CHAINE DE CARACTERES"
+echo strtoupper($var) . PHP_EOL;
+
+---- Determiner la longueur d'une chaine de caracteres avec la fonction strlen()
+
+<?php
+
+$var = 'Une ChaIne dE caractERes';
+// Affichera "23"
+echo strlen($var) . PHP_EOL;
+
+/////// TRAVAILLER AVEC LES DATES ET LES TABLEAUX
+
+<?php
+
+// Affiche la date au format jour/mois/année
+echo date("d/m/Y") . PHP_EOL;
+
+// Affiche le jour de la semaine
+echo date("l") . PHP_EOL;
+
+// Affiche l'heure
+echo date("H:i:s") . PHP_EOL;
+
+////////CONVERTIR UNE CHAINE DE CARACTERES EN UN TABLEAU ET INVERSEMENT
+
+-----les fonctions explode() et implode()
+
+<?php
+
+$array = ['mandarine', 'fraise', 'poire', 'pamplemousse'];
+
+// Nous allons concaténer les valeurs de notre tableau en les séparant par une virgule
+$arrayToString = implode(',', $array);
+
+
+// Affichera "mandarine,fraise,poire,pamplemousseArray"
+echo $arrayToString;
+
+// On transforme une chaîne en tableau en considérant que les entrées seront les éléments séparés par une virgule
+$stringToArray = explode(',', $arrayToString);
+
+print_r($stringToArray);
+/* Affichera 
+Array
+(
+    [0] => mandarine
+    [1] => fraise
+    [2] => poire
+    [3] => pamplemousse
+)
+*/
+
+------- la fonction print_r()
+Cette fonction permet  d'afficher le contenu d'une variable de facon lisible. Cette fonction peut etre utile pour afficher rapidement le contenu d'un tableau pour verifier ce qu'il contient
+
+
+---- strlen() verifie la longueur d'un mot de passe

@@ -1,0 +1,92 @@
+affichage avec implode():
+
+echo ne sait pas afficher les TABLEAUX
+et var_dump() n'est pas adapté a l'affichage des TABLEAUX
+
+implode() va afficher tous les elements d'un tableau separes par separateur choisi par le developpeur
+
+<?php
+
+$winningNumbers = [4, 5, 65, 78, 87];
+
+echo implode(', ', $winningNumbers); // Affiche "4, 5, 65, 78, 87"
+
+le separateur choisi ici est la virgule
+
+tri simple avec sort(): fonctionne avec des nombres et des chiffres
+
+rsort(): trie dans un ordre decroissant
+
+ksort(): trie en fonction des cles
+
+in_array(): test de l'existence d'une donnee dans un tableau renvoie un bool, cette fonction est souvent utilisee dans dans une condition if afin d'executer ou non on bloc de code en fonction de la presence d'une donnee dans un tableau/ 
+--- prend en parametre la valeur recherchee et le tableau dans lequel la valeur est recherchee 
+
+
+nombre d'elements dans un tableau avec count()
+
+shuffle() va melanger aleatoirement les elements d'un tableau
+
+array_chunk() separe un tableau en tableaux de taille inferieure
+parametres: tableau a traiter, la taille de chaque tableau, preserve_keys: si defini  a true les cles seront preservees par defaut vaut false ce qui reindexera le tableau resultant numeriquement
+
+<?php
+$input_array = array('a', 'b', 'c', 'd', 'e');
+print_r(array_chunk($input_array, 2));
+print_r(array_chunk($input_array, 2, true));
+?>
+
+
+L'exemple ci-dessus va afficher :
+
+Array
+(
+    [0] => Array
+        (
+            [0] => a
+            [1] => b
+        )
+
+    [1] => Array
+        (
+            [0] => c
+            [1] => d
+        )
+
+    [2] => Array
+        (
+            [0] => e
+        )
+
+)
+
+// avec le preserve_keys a true:
+Array
+(
+    [0] => Array
+        (
+            [0] => a
+            [1] => b
+        )
+
+    [1] => Array
+        (
+            [2] => c
+            [3] => d
+        )
+
+    [2] => Array
+        (
+            [4] => e
+        )
+
+)
+
+
+array_shift(): extrait la premiere valeur du tableau array et la retourne en raccourcissant array d'un element et en deplacant tous le elements vers le bas. Toutes les cles numeriques seront modifiees pour commencer a zero pendant que les cles litterales ne seront pas affectees
+
+array_merge() rassemble les elements d'un ou de plusieurs tableaux en ajoutant les valeurs de l'un a la fin de l'autre, le resultat est un tableau.
+si les tableaux d'entrees ont des cles en commun alors la valeur finale pour cette cle ecrasera la precedente. Cependant si les tableaux contiennent des cles numeriques la valeur finale n'ecrasera pas la valeur originale mais sera ajoutee.
+Les cles numeriques des tableaux d'entrees seront renumerotees en cles incrementees partant de zero dans le tableau fusionné.
+
+

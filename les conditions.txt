@@ -1,0 +1,198 @@
+syntaxe generale :
+
+si condition alors 
+    code 1
+sinon 
+    code 2
+
+en php:
+
+<?php
+$age = 21;
+
+if ($age >= 18) {
+  echo "Vous êtes majeur";
+} else {
+  echo "Vous êtes mineur";
+}
+?>
+
+----------- if   else
+
+Si une variable est deja de type booleen on pourrait etre tentés d'ecrire: 
+if($condition === true). Cette condition est valide et fonctionne mais pour alleger le code il est possible de simplement ecrire if ($condition), $condition etant deja un booleen
+
+/\ ATTENTION 
+soyons vigilants avec l'utilisation de operateurs == et === dans le if
+Par habitude il peur arriver d'ecrire simplement = ce qui aura pour effet d'affecter une valeur a une variable et non de comparer les valeurs Or:
+
+si la condition d'un if n'est pas un booleen l'interpreteur PHP va essayer de convertir cette variable en booleen 
+
+la regle qui va s'appliquer le plus souvent est que si une variable n'est pas valide alors php la traite comme vraie
+
+-------- else if  (peut aussi s'ecrire elseif)
+
+/\ DES QU'UNE CONDITION EST EVALUEE COMME VRAIE, LES SUIVANTES SONT IGNOREES 
+
+Les else if peuvent etre enchaines autant de fois que besoin
+Pour finir n'oublions pas le else a la fin dans le cas ou toutes les les conditions en amont seraient fausses
+
+
+************** L'ECRITURE TERNAIRE *****************
+
+objectif: condeser le code en ecrivant notre code sur une seule ligne 
+
+SYNTAXE:   (condition) ? alors : sinon
+ex: 
+
+<?php
+$pays = 'france';
+
+if ($pays === 'france') {
+  $francais = true;
+} else {
+  $francais = false;
+}
+
+// if-else transformé en ternaire.
+
+$francais = ($pays === 'france') ? true:false;
+?>
+
+/\ L'ECRITURE TERNAIRE EST A UTILISER AVEC PARCIMONIE
+ELLE EST A EVITER DANS LE CAS DES IF-ELSEIF-ELSE
+
+<?php
+ $productsCount = 1;
+
+if ($productsCount === 0){
+    echo 'votre panier est vide;
+} elseif ($productsCount === 1) {
+    echo 'vous avez '.$productsCount.' article dans votre panier';
+} else {
+    echo 'vous avez '.$productsCount.' articles dans votre panier';
+}
+
+
+////////// SWITCH 
+
+objectif: simplifier le code quand la structure if elseif else devient trop lourde ou repetitive;
+
+Le principe du switch est de prendre une variable et de la comparer a plusieurs valeurs chaque cas ayant un code correspondant
+
+
+switch ($variable) {
+
+    case 'valeur1':
+
+        // Code à exécuter.
+
+        break;
+
+    case 'valeur2':
+
+        // Code à exécuter.
+
+        break;
+
+    default:
+
+        // Code à exécuter.
+
+}
+
+la $variable parametre du switch n'est pas une expression booleenne mais une valeur qui sera comparee ensuite avec chaque case. Une fois le case trouve le code correspondant est execute et l'execution du switch est interrompue quand le mot cle break est rencontre.
+
+/\ATTENTION :  si on ne met pas le break a chaque fin de case, le programme continuera a comparer les case les uns apres les autres 
+Utiliser un break est equivalent du else  if  la ou ne pas le mettre equivaut a enchainer les if
+
+/]\ ATTENTION:  le switch ne traite que l'egalite == et non la superiorite ou l'inferiorite
+
+--- cas particulier: 
+si pour plusieurs case nous devons executer le meme code il est possible d'enchainer les case sans repeter le bloc d'instructions 
+Nous ecrirons seulement case 'valeur'
+
+<?php
+$pays = 'Norvège';
+
+switch ($pays) {
+    case 'Norvège':
+    case 'Allemagne':
+        echo "Hallo";
+        break;
+    case 'Angleterre':
+        echo "Hello";
+        break;        
+    default:
+        echo "De quel pays êtes-vous ?";
+}   
+?> // ici le bonjour en allemand et en norvegien est le meme nous avons donc ecrit une seule fois l'affichage de Hallo
+
+
+
+/////////////////////////////DEFI\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+<html>
+  <head>
+    <title>PHP Test</title>
+  </head>
+  <body>
+    <?php echo 
+    // declaration des variables:
+$vehicule = 'voiture';
+
+// attribution du nbre de roues en fonction du vehicule
+switch ($vehicule){
+  case 'voiture':
+  case 'quad':
+  $type = 4;
+  echo ' votre vehicule a 4 roues<br>';
+  break;
+  case 'moto':
+  case 'scooter':
+  $type = 2;
+  echo ' votre vehicule a 2 roues<br>';
+  break;
+  case 'trike':
+  $type = 3;
+  echo ' votre vehicule a 3 roues<br>';
+  break;
+  case '':
+  $type = null;
+  echo ' veuillez renseiger un type de vehicule valable<br>';
+  break;
+  default:
+  $type = 1;
+  echo " vehicule de type 'autres'<br> " ;    
+}
+
+
+//calcul des prix selon les fournisseurs
+$totalPneufs = $type*60;
+  
+if ($type >= 4){
+    $totalPneufs *= 0.85;
+} 
+$totalRouesCool = $type*75;
+ if ($type >= 3){
+    $totalRouesCool *= 0.75;
+ }
+
+
+
+// qui est le moins cher?
+
+if ($totalRouesCool > $totalPneufs) {
+  echo 'le moins cher est Pneufs! avec un prix de : '.$totalPneufs.' euros, contre: '.$totalRouesCool.' euros pour Roues Cool';
+} 
+elseif ($totalRouesCool === $totalPneufs){
+  echo 'Le prix est le meme pour les deux fournisseurs!';
+} 
+else {
+   echo 'le moins cher est Roues Cool! avec un prix de : '.$totalRouesCool.' euros, contre: '.$totalPneufs.' euros pour Pneufs';
+}
+    ?> 
+
+    
+    <script src="https://replit.com/public/js/replit-badge.js" theme="blue" defer></script> 
+  </body>
+</html>

@@ -1,0 +1,160 @@
+<?php
+	
+	// Calcul grâce à une boucle.
+	for($i = 1; $i <= 100; $i++) {
+ 
+     $addition = $addition + $i;
+ }
+	echo $addition;
+
+
+<?php
+$nombres = [1,2,3,4,5,6];
+
+// Multiplication grâce à une boucle.
+foreach($nombres as $index => $nombre) {
+   $nombres[$index] *= 2;
+}
+
+var_dump($nombres);
+
+
+///while    do while
+
+ici nous optons pour le do while car l'ordinateur doit faire une premiere proposition pour commencer (entrer dans la boucle une premiere fois)
+<?php
+
+$number = 30; 
+$numberOfTries = 0;
+
+do {
+  $guess = rand(0, 100); //L'ordinateur choisit un nombre aléatoire
+  echo 'Je tente '.$guess.' !<br>';
+  $numberOfTries++;
+} while ($guess !== $number); //On boucle tant que la réponse n'a pas été trouvée
+
+echo 'Trouvé au bout de '.$numberOfTries.' essais !';
+
+<?php
+
+$tries = 0;
+$sticksNumber = 15;
+
+while ($sticksNumber > 0) {
+  $removedSticks = rand(1, 3);
+  $playerNumber = ($tries % 2) + 1;  //pour calculer a quel joueur c'est le tour, resultat est 1 ou 2
+  $sticksNumber -= $removedSticks;
+  echo 'Joueur '.$playerNumber.' retire '.$removedSticks.' bâtons. Il en reste '.$sticksNumber.'<br>';
+  $tries++;
+} ;
+
+
+
+appliquer la notion:
+
+L’affichage de fin devra ressembler à ceci :
+1
+22
+333
+4444
+55555
+666666
+7777777
+88888888
+999999999
+
+
+une boucle for dans une boucle for:
+
+<?php
+			for($nombre = 1;$nombre <= 9;$nombre++) {
+		   for($repeter = 1;$repeter <= $nombre;$repeter++){
+	  	  		echo $nombre;
+	  	   }
+   		    echo ‘<br />’;
+			    }
+     	 ?>     
+
+
+
+******** FOR EACH *******
+
+<?php
+foreach($user as $userField => $userInformation) {
+  echo $userField.' : '.$userInformation.'<br>';
+}
+
+<?php
+foreach($user as $userField => $userInformation) {
+  echo $userField.' : '.$userInformation.'<br>';
+}
+
+equivaut a ceci:
+
+<?php
+
+$numbers = [4, 8, 15, 16, 23, 42];
+
+foreach($numbers as $index => $value) {
+  $numbers[$index] *= 2;
+}
+
+var_dump($numbers);
+
+
+<html>
+  <head>
+    <title>PHP Test</title>
+  </head>
+  <body>
+    
+<ul>   
+<?php 
+    ////////////////////////DEFI\\\\\\\\\\\\\
+// ventes de jeans
+$sales = [
+  'janvier' => 64,
+  'fevrier' => 45,
+  'mars' => 32,
+  'avril' => 45,
+  'mai' => 35,
+  'juin' => 47,
+  'juillet' => 68,
+  'aout' => 76,
+  'septembre' => 43,
+  'octobre' => 23,
+  'novembre' => 83,
+  'decembre' => 15,
+];
+echo '<h1>Liste des ventes annuelles:'.'</h1>'.'<br>';
+foreach ($sales as $month => $number){ //pour chaque mois et ventes dans le tableau sales
+echo '<li>'.$month.' : '.$number;
+$total += $number; // et a chaque tour de boucle la variable total va se voir ajouter la valeur de $number
+  }
+      ?> 
+</ul>     // j'oublie pas de sortir de la liste pour afficher le resultat
+    Total: // je l'ai mis dans rien car je m'en bats les couilles
+    <?php
+echo $total //je renvoie le total car je suis la best =D
+  ?>
+    <script src="https://replit.com/public/js/replit-badge.js" theme="blue" defer></script> 
+  </body>
+</html>
+
+
+
+
+TABLES DE MULTIPLICATIONS:
+
+<html>
+<h1>Tables de multiplication:<br></h1>
+<?php
+
+for ($i = 1; $i <= 10; $i++){
+  for($y = 1; $y <= 10; $y++){
+    echo '<li>'.$i.' x '.$y.' = '.$i*$y;
+  }
+}
+
+?>
+</html>
