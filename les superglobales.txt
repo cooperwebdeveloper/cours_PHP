@@ -1,0 +1,570 @@
+transmettre grace aux formulaires html 
+    --> grace aux attributs name et value du formulaires
+un formulaire Html possede un attribut method="" qui peut prendre la valeur get ou post 
+un formulaire est configuré pour une action donnee --> attribut action="" stipulant le script php ou seront envoyees et traitees les donnees 
+
+exemple:
+
+<form method="post" action="script.php">
+  <label for="firstname">Firstname :</label>
+  <input type="text" id="firstname" name="firstname" value="" />
+  <label for="country">Country :</label>
+  <select id="country" name="country">
+    <option value="France">France</option>
+    <option value="Espagne">Espagne</option>
+    <option value="Italie">Italie</option>
+  </select>
+  <button type="submit">Send</button>
+</form>
+
+******* L'attribut NAME:
+
+        important car cest sa valeur qui l'identifiera dans le script php cible.
+        C'est la valeur de cet attribut qui definira la cle du tableau $_POST ou $_GET
+
+******* L'attribut VALUE: 
+        permet de definir la valeur associee a la cle NAME dans  le tableau $_POST ou $_GET
+
+TRANSMETTRE UN TABLEAU:
+ exemple lors d'un select multiple  ou plusieurs cases sont a cocher  dans un formulaire
+ pour transmettre l'integralite des valeurs selectionnees il convient de rajouter des crochets [] a la fin de la valeur de l'attribut name :
+ name="languages[]"
+ /\ Si on ne mets pas les crochets meme si l'utilisateur coche plusieurs cases, la valeur de $_POST['languages'] contiendra uniquement la valeur de la derniere case cochee!!!!
+
+ DONC: 
+ - Les donnees d'un formulaire HTML sont traitees pat le script defini dans l'attribut action et sont transmises selon la methode definie dans l'attribut method
+    (GET ou POST)
+
+ - Qu'importe la methode les donnees seront stockees dans un attribut associatif ayant pour cles les valeurs des differents attributs name du formulaire soumis 
+    Les valeurs correspondront quant a elles aux attributs VALUE
+
+ - Ces valeurs sont stockees dans les superglobales $_GET et $_POST selon la methode choisie pour transmettre les informations 
+
+ - Dans certains cas il est necessaire d'ajouter [] a la fin de l'attribut d'un champ de formulaire afin de permettre la transmission de donnees multiples
+
+ rappel en html les balises input sont autofermantes 
+
+/////////////////etapes pour recuperer les donnees d'un formulaire en php = ///////////////////////////////////
+dans la balise form on indique la maniere dont on va recuperer les donnees et le fichier php qui va etre en charge de les traites 
+1/ au form il faut ajouter l'attribut method soit get soit post (maniere dont on va recuperer les donnees)
+2/ form --> attribut action= (chemin du script qui va traiter les donnes) exemple : form.php
+
+3/ Nommer chaque champ pour savoir quelle valeur correspond a quoi:
+    attribut NAME = exemple formulaire d'inscription avec deux champs texte type text , un va avoir le name login et l'autre email 
+    on peut mettre une valeur par defaut en rajoutant l'attribut value=
+
+4/ En cas de donnees multiples comme par exemple une check-box il suffit de rajouter [] apres la chaque valeur de l'attribut name 
+    ex: <select name= "sports[]" id="languages" multiple>
+
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+</head>
+<body>
+<form method="post" action="traitement-formulaire.php">
+    <div>
+        <input type="radio" id="Mr" name="civilite" value="Mr">
+        <label for="Mr" class="inline-label">Monsieur</label>
+    </div>
+    <div>
+        <input type="radio" id="Mme" name="civilite" value="Mme">
+        <label for="Mme" class="inline-label">Madame</label>
+    </div>
+
+    <label for="name">Votre nom</label>
+    <input type="text" name="name" id="name" placeholder="Saisissez votre nom">
+
+    <label for="birthDate">Votre date de naissance</label>
+    <input type="date" name="birthDate" id="birthDate" placeholder="Saisissez votre date de naissance">
+
+    <label for="comment">Commentaire</label>
+    <textarea rows="4" name="comment" id="comment" placeholder="Ajoutez un commentaire pertinent"></textarea>
+
+    <label for="email">Votre adresse e-mail</label>
+    <input type="email" name="email" id="email" placeholder="Saisissez votre e-mail">
+
+    <label for="languages">Langages de programmation maîtrisés</label>
+    <select name="languages[]" id="languages" multiple>
+        <option value="HTML">HTML</option>
+        <option value="JS">JS</option>
+        <option value="PHP">PHP</option>
+        <option value="Python">Python</option>
+        <option value="SQL">SQL"</option>
+    </select>
+
+    <label for="tos" class="inline-label">J'accepte les conditions générales d'utilisation</label>
+    <input type="checkbox" name="tos" id="tos">
+
+    <button type="reset">Réinitialiser les valeurs du formulaire</button>
+    <button type="submit">Soumettre le formulaire</button>
+</form>
+</body>
+<style>
+ /**
+    Attention, ce CSS est là uniquement pour rendre le formulaire "agréable" à la lecture sans que vous n'ayez
+    à récupérer deux fichiers distincts.
+    Dans un cas d'usage "réel", ces éléments doivent être externalisés
+     */
+    body {
+        font-family: Calibri, serif;
+    }
+
+    form {
+        max-width: 50%;
+    }
+
+    form label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    label.inline-label {
+        display: inline-block;
+    }
+
+    fieldset {
+        border: 1px solid lightgray;
+        background-color: rgba(225, 233, 255, 0.25);
+    }
+
+    legend {
+        font-style: italic;
+        font-size: 1.1em;
+        padding: 5px;
+    }
+
+    form input, form select, form textarea {
+        display: inline-block;
+        margin-bottom: 10px;
+        padding: 10px;
+        width: 80%;
+    }
+
+    form input[type="radio"],
+    form input[type="checkbox"],
+    form input[type="submit"] {
+        width: auto;
+    }
+
+    button[type=submit], button[type=reset] {
+        padding: 10px;
+        margin-top: 15px;
+    }
+</style>
+</html>
+
+///////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+$_GET
+-------------------------
+
+via URL ---> inscrites et donc visibles dans l'URL
+
+Les parametres seront ajoutes a la fin de l'url et seront separes de la partie principale par un ? et si plusieurs donnees sont transmises elles seront separees entre elles par un &:
+https://url.php?firstname=john&lastname=doe&age=31.
+
+https://url.php est l'URL dans son format initial c'est l'URL du script qui recevra les donnees 
+
+? indique que les parametres vont etre envoyes 
+
+firstname=john est un premier parametre ayant pour nom firstname et pour valeur john
+
+& indique un autre parametre 
+
+
+Les donnees sont transmises par l'URL, sont receptionnees par le script cible et stockees dans la variable superglobale $_GET 
+
+Il s'agit d'un tableau associatif dans lequel les cles correspondesnt aux noms des parametres 
+
+Les donnees sont alors utilisables au besoin.
+
+////\\\ on doit toujours s'assurer que les donnees $_GET sont bien presentes avec une condition if et avec la methode isset($_GET['login']) par exemple et mettre en else un echo 'message d'erreur'  pour le cas ou l'URL a ete trafiqué
+nb: taille max des URL 2048
+
+utilisation de get: recuperer des donnees 
+
+dans le script.php qui recoit les donnees du formulaire:
+
+<?php 
+var_dump($_GET);
+
+if (isset($_GET['login'])){
+    echo $_GET['login'];
+}else{
+    echo 'Login introuvable';
+}   // SI ON NE MET PAS UN ELSE ON A UNE ERREUR EN CONSOLE
+?>
+
+/////////\\\\\\\\\\ PROBLEME URL EN  FAVORIS!!!!!!!!!
+
+relance a chaque fois le formulaire a chaque fois quil clicke sur le lien FAVORI
+
+pour simuler cela on peut utiliser la methode file_put_contents() qui prend en parametres : le fichier ou l'on souhaite envoyer les donnees 
+             les donnes que l'on souhaite recuperer 
+             le flag qui fait que les donnees sont ajoutees a la fin et non pas      ecrasees FILE_APPEND
+
+
+
+
+file_put_contents('logins.txt', $_GET['login'], FILE_APPEND)
+
+get est utile pour recuperer des donnees quand on fait une recherche par ex
+quand l'utilisateur fait une recherche sur google c'est en _GET
+pour recuperer des donnees d'un formulaire c'est file_put_contents
+
+//////////////\\\\\\\\\\\\\\\\\\\
+$_POST
+------------------------------------
+
+les donnees sont masquees mais sont accessibles dans les outils console et reseaux du navigateur 
+dans l'onglet parametres de la requete http post
+
+pas de limite de taille des donnees a envoyer mais les serveurs web possedent une limite en nombre de champs a poster. Celle ci est modifiable
+
+cette valeur se trouve generalement dans le fichier php.ini du serveurs
+
+Grace a post il sera possible d'envoyer des fichiers
+
+fonctionnement idem que $_GET 
+les donnees transmises par un formulaire seront receptionnees par le script cible et stockees dans la variable superglobale $_POST c'est egalement un tableau associatif dans lequel les cles sont le nom des parametres 
+
+<html>
+  <head>
+    <title>Superglobale $_POST</title>
+  </head>
+  <body>
+    <form method="post" action="script.php">
+      <label for="lastname">Lastname :</label>
+      <input type="text" id="lastname" name="lastname" value="" />
+      <input type="checkbox" name="languages[]" value="php" />PHP
+      <input type="checkbox" name="languages[]" value="javascript" />Javascript
+      <input type="checkbox" name="languages[]" value="perl" />PERL
+      <button type="submit">Send</button>
+    </form>
+  </body>
+</html>
+
+
+************
+dans le fichier script.php:
+
+
+<?php
+// script.php.
+print_r($_POST); // Affichera Array ([lastname] => doe [languages] => Array ([0] => php [1] => javascript))
+echo $_POST['lastname']; // Affichera 'doe'.
+?>
+
+RAPPEL: les donnees de $_POST  sont les valeurs des attributs name du formulaire html
+
+Pour tester tous types de requetes il faut utiliser des outils comme Postman:
+envoyer des requetes en post sans passer par le navigateur.
+
+<?php
+
+function printPostFormValue($key)
+{
+    if (!isset($_POST[$key])) {
+        echo sprintf("La clé %s n\'a pas été definie <br/>", $key);
+        return;
+    }
+
+    echo sprintf("La valeur de la clé %s est : " . PHP_EOL, $key);
+    print_r($_POST[$key]);
+    echo '<br/>';
+}
+
+printPostFormValue('civilite');
+printPostFormValue('name');
+printPostFormValue('birthDate');
+printPostFormValue('comment');
+printPostFormValue('email');
+printPostFormValue('languages');
+printPostFormValue('tos');
+
+
+########## ENVOI DE FICHIERS ##########%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+-----> Actions a faire au niveau du formulaire :
+
++ ajouter l'attribut enctype="multipart/form-data"
++ declarer un champ input de type file (ou file_put_contents si on veut faire glisser)
+
+
+<body>
+  <form method="post" enctype="multipart/form-data">
+    <label for="lastname">Lastname :</label>
+    <input type="text" id="lastname" name="lastname" value="" /><br />
+    <label for="cni">Upload ID Card :</label>
+    <input type="file" id="cni" name="cni" />
+  </form>
+</body>
+
+
+l'attribut enctype sert a specifier l'encodage des donnees.
+Par defaut les donnees sont encodees de maniere invisible pour l'utilisateur, mais dans le cas d'un fichier ce comportement pourrait corrompre son contenu.
+La valeur multipart/form-data sert ainsi a specifier que le contenu du formulaire ne devra pas etre encodé 
+
+**************
+$_FILES  
+----------
+
+Cette superglobale permet de manipuler des informations sur le fichier dans le script PHP qui le recevra 
+
+il s'agit d'un tableau associatif qui contiendra :
+
+- name: le nom du fichier , valeur de l'attribut HTML name 
+- type: le type de fichier (png, jpeg, txt)
+- tmp_name: le nom et le repertoire temporaire du fichier 
+- error: indique si une erreur est survenue lors de l'envoi
+- size: la taille du fichier en octets 
+
+
+$_FIILES  est un tableau qui contient un autre tableau
+------> l'acces au fichier s'ecrit $_FILES['monFichier']
+------> l'acces aux informations du fichier s'ecrit: $_FILES['monFichier']['attribut']
+
+
+/\  ATTENTION 
+
+PHP limite par defaut la taille des fichiers qu'il peut recevoir par POST a 8 Mo, mais cette valeur est modifiable dans la cofiguration du serveur.
+
+Mecanisme:
+
+une fois validé, le formulaire envoie les donnees vers la page specifiee 
+
+a ce moment precis les fichiers sont stockes dans un repertoire temporaire.
+Cela permet de laisser la liberté au developpeur de controler le fichier avant son enregistrement definitif sur le serveur .
+
+/\ IL EST NECESSAIRE DE VERIFIER:
+ - si le fichier a bien été envoyé grace a la fonction isset() de PHP
+ - s'il n'y a pas eu d'erreurs pdt le telechargement 
+ - l'extension du fichier 
+ - la taille du fichier 
+
+******* LES FICHIERS PORTANT L'EXTENSION .PHP DOIVENT ETRE INTERDITS POUR EVITER L'EXECUTION DE SCRIPTS EXTERIEURS ****************
+
+<?php
+$extensions = array('jpg', 'png', 'gif');
+
+if (isset($_FILES['cni']) && !$_FILES['cni']['error']) {
+  $fileInfo = pathinfo($_FILES['cni']['name']);
+
+  if ($_FILES['cni']['size'] <= 2000000) {
+    if (in_array($fileInfo['extension'], $extensions)) {
+      // Scripts à exécuter quand les contrôles sont bons.            
+    } else {
+      echo 'Ce type de fichier est interdit';
+    }
+  } else {
+    echo 'Le fichier dépasse la taille autorisée';
+  }
+} else {
+  echo 'Une erreur est survenue lors de l\'envoi du fichier';
+}
+?>
+
+-----> Traduction:
+- si le formulaire est validé sans le fichier ou s'il y a une erreur lors de l'envoi, le script affichera: Une erreur est survenue lors de l'envoi du fichier 
+
+- si la taille depasse 2Mo dans notre cas, le script affichera: le fichier depasse la taille autorisee 
+
+- si l'extension du fichier ne fait pas partie de notre liste le script affichera : Ce type de fichier est intedit 
+
+***** derniere etape : enregistrer le fichier  recu dans un dossier du serveur :
+
+function move_uploaded_file()
+elle accepte deux parametres :
+  - le nom et le repertoire temporaire: $_FILES['mon fichier']['tmp_name']
+  - le nom et le repertoire definitif: $_FILES['mon fichier']['name']
+
+
+  move_uploaded_file($_FILES['cni']['tmp_name'], 'cni/'.$_FILES['cni']['name']);
+echo 'Le fichier a été envoyé sur le serveur';
+
+
+quand le fichier aura passé tous les controles il sera enregistré dans le repertoire cni/ et le script affichera: Le fichier a ete envoyé
+
+/\ ATTENTION: 
+SI UN FICHIER A DEJA ETE TELECHARGE AVEC CE NOM, IL SERA ECRASE PAR LE NOUVEAU. IL FAUT RENOMMER LES FICHIERS DE MANIERE UNIQUE POUR EVITER CE GENRE DE DESAGREMENT
+
+Exemple:
+
+(index.php)
+<form method="POST" action="form.php" enctype="multipart/form-data">
+// action est le fichier php qui recoit les donnees enctype est a ajouter pour l'envoi de fichiers
+fichier: <input type="file" name="photo"><br>
+login: <input type="text" name="login"><br>
+<button type="submit">EVOYER</button>
+</form>
+
+(form.php)
+<h1>Formulaire envoyé!</h1>
+<?php
+    if (isset($_FILES['photo'])){ // si le fichier photo existe
+        if ($_FILES['photo']['error'] !== UPLOAD_ERR_OK){
+            //UPLOAD_ERR_OK=>const php (voir doc)remplace !== 1
+            echo 'Erreur de telechargement'
+        } elseif ($_FILES['photo']['size'] > 200000) {
+            echo 'La taille du fichier depasse la limite autorisee'
+        } else {
+            $filename = uniqid();
+            // uniqid() est une methode php qui permet d'obtenir un nom aleatoire
+            $infos = pathinfo($_FILES['photo']['name']);
+            move_uploaded_file($_FILES['photo']['tmp_name'],'images/'.$filename.'.'.$infos['extension']);
+            //bouger le fichier du dossier temporaire vers son dossier final, ici dossier créé: images/
+            echo 'Telechargement reussi!';
+        }
+    }
+
+
+
+APPLIQUEZ LA NOTION:
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+</head>
+<body>
+<form method="post" action="traitement-formulaire.php" enctype="multipart/form-data">
+    <div>
+        <input type="radio" id="Mr" name="civilite" value="Mr">
+        <label for="Mr" class="inline-label">Monsieur</label>
+    </div>
+    <div>
+        <input type="radio" id="Mme" name="civilite" value="Mme">
+        <label for="Mme" class="inline-label">Madame</label>
+    </div>
+
+    <label for="name">Votre nom</label>
+    <input type="text" name="name" id="name" placeholder="Saisissez votre nom">
+  
+  
+  <label for="photo">Votre photo :      </label>
+  <input type="file" name="photo" id="photo">
+
+  <label for="cni">Votre Justificatif d'identité:      </label>
+  <input type="file" name="cardId" id="cardId">
+  
+  
+  
+  <label for="tos" class="inline-label">J'accepte les conditions générales d'utilisation</label>
+    <input type="checkbox" name="tos" id="tos">
+
+    <button type="reset">Réinitialiser les valeurs du formulaire</button>
+    <button type="submit">Soumettre le formulaire</button>
+</form>
+</body>
+<style>
+/**
+    Attention, ce CSS est là uniquement pour rendre le formulaire "agréable" à la lecture sans que vous n'ayez
+    à récupérer deux fichiers distincts.
+    Dans un cas d'usage "réel", ces éléments doivent être externalisés
+     */
+    body {
+        font-family: Calibri, serif;
+    }
+
+    form {
+        max-width: 50%;
+    }
+
+    form label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    label.inline-label {
+        display: inline-block;
+    }
+
+    fieldset {
+        border: 1px solid lightgray;
+        background-color: rgba(225, 233, 255, 0.25);
+    }
+
+    legend {
+        font-style: italic;
+        font-size: 1.1em;
+        padding: 5px;
+    }
+
+    form input, form select, form textarea {
+        display: inline-block;
+        margin-bottom: 10px;
+        padding: 10px;
+        width: 80%;
+    }
+
+    form input[type="radio"],
+    form input[type="checkbox"],
+    form input[type="submit"] {
+        width: auto;
+    }
+
+    button[type=submit], button[type=reset] {
+        padding: 10px;
+        margin-top: 15px;
+    }
+</style>
+</html>
+
+traitement-formulaire.php
+<?php
+
+function printPostFormValue($key)
+{
+    if (!isset($_POST[$key])) {
+        echo sprintf("La clé %s n/'a pas été definie <br/>", $key);
+        return;
+    }
+
+    echo sprintf("La valeur de la clé %s est : " . PHP_EOL, $key);
+    print_r($_POST[$key]);
+    echo '<br/>';
+}
+
+
+function manageFile($key)
+{
+    $extensions = array('jpg', 'png', 'gif', 'pdf');
+
+    if (isset($_FILES[$key]) && !$_FILES[$key]['error']) {
+        $fileInfo = pathinfo($_FILES[$key]['name']);
+        if ($_FILES[$key]['size'] <= 2000000) {
+            if (in_array($fileInfo['extension'], $extensions)) {
+                if (!is_dir($key)) {
+                    try {
+                        mkdir($key);
+                        echo 'Le répertoire a été créé ';
+                    } catch (Exception $e) {
+                        echo 'Une erreur est survenue : ' . $e->getMessage();
+                    }
+                }
+
+                try {
+                    move_uploaded_file($_FILES[$key]['tmp_name'], $key . '/' . $_FILES[$key]['name']);
+                    echo 'Le fichier a été envoyé sur le serveur';
+                } catch (Exception $e) {
+                    echo 'Une erreur est survenue : ' . $e->getMessage();
+                }
+            } else {
+                echo 'Ce type de fichier est interdit';
+            }
+        } else {
+            echo 'Le fichier dépasse la taille autorisée';
+        }
+    } else {
+        echo 'Une erreur est survenue lors de l\'envoi du fichier';
+    }
+}
+
+printPostFormValue('civilite');
+printPostFormValue('name');
+printPostFormValue('tos');
+manageFile('picture');
+manageFile('cardId');a

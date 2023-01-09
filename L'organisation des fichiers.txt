@@ -1,0 +1,46 @@
+le code des blocs front peuvent et doivent etre separees
+le front va creer le template et va dire a l'equipe d'integration les variables dont elle a besoin
+ces variables vont etre recuperees par l'equipe back
+
+ex le header d'un site va etre present sur toutes les pages le front s'occupe uniquement de l'organisation de l'html 
+le contenu c'est l'equipe d'integration et le back qui vont le gerer 
+
+on va preparer le travail de l'equipe d'integration au niveau du front, on va faire des test en remplacant les variables par des donnees test 
+
+faire un require c'est comme faire un copier coller 
+
+exemple d'architecture d'une application web:
+
+index.php => la structure de base 
+
+header.php => structure du header reutilisable 
+
+article.php => structure des articles
+
+
+====== Recuperer le back-end
+
+dossier back 
+articles.php  ---> les fonctions qui vont recuperer les articles dans les bases de donnees
+
+gestion du multilangues :
+Dans un dossier constantes 
+definir un fichier de constantes par langue:
+text_fr.php
+text_en.php 
+on a les memes constantes dans chaque fichier 
+dans un fichier langage.php on va definir une fonction conditionnelle qui va soit charger les textes en fr ou en anglais avec des require
+la fonction qui va s'appeler loadLanguage() va prendre en param le langage du profil utilisateur.
+
+
+L'integration:
+include et require pour la partie html et include_once et require_once pour les scripts php
+
+include_once verifie d'abord que le fichier n'a pas deja ete inclus, si c'est le cas il ne l'inclue pas 
+
+la difference entre include et require est que require coupe l'execution du programme si le fichier demandé n'existe pas: require permet de lever une erreur si le fichier requis n'existe pas . include ne fait que lancer un warning mais le programme continue con execution  
+
+si une variable est definie APRES l'inclusion du fichier qui est censé l'afficher la variable est donc introuvable au moment de l'affichage ce qui provoque une erreur
+
+require_once n'importe que les fichiers qui n'ont pas encore ete inclus 
+

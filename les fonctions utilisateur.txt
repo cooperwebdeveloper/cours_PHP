@@ -17,3 +17,178 @@ myDate();
 
 //// les parametres 
 
+il est conseillé de preciser le type de parametre meme si ce n'est pas necessaire.
+
+Difference entre parametres et arguments:
+On parle de parametres lors de la declaration d'une fonction
+On parle d'arguments lors de l'utilisation de cette fonction dans le code
+
+Valeurs par defaut:
+il suffit de declarer le nom du parametre puid de lui affecter une valeur comme pour une variable classique
+----> lsq nous appelerons la fonction nous aurons la possibilite de preciser ou non les arguments optionnels
+----> les parametres disposant d'une valeur par defaut etant optionnels ils doivent etre situes en dernier
+
+declare(strict_types=1); ===> cette instruction permet de dire a php de ne pas transformer le type de la variable 
+c'est a dire : si le typage de la variable est int (pour integer) et que la variable recue est une chaine de caracteres, alors php va retourner une erreur
+
+////////valeurs de retour:
+
+function returnAnArray()  // je declare ma fonction
+{
+  return ['Something', 'Something Else', 'Another Value']; // elle me retourne un tableau
+}
+$values = returnAnArray();  // je declare une variable qui du coup a pour valeur le return de la fonction
+
+foreach ($values as $value) { // pour chaque element du tableau sus-cite
+  echo $value.PHP_EOL;    // echo la valeur de l'element et aller a la ligne
+
+}
+
+
+////\\\\ tout ce qui est apres le return n'est pas execute par la fonction (sauf if et si on ne rentre pas dans la condition)
+
+
+on peut aussi typer le return de nos fonctions 
+
+function nomDeMaFonction (int $value): string    // notre fonction doit nous retourner une chaine de caracteres
+
+void = la fonction ne retourne rien (pas de return) on peut quand meme mettre juste return pour sortir de la fonction et continuer a executer notre script
+
+
+********** LA PORTEE DES VARIABLES ******
+
+la portee depend du contexte dans lequel la variable est definie 
+en PHP: 
+  -- Si la variable est declaree hors fonction sa portee est la totalite du script
+  -- Si la variable est declaree dans une fonction alors est locale a celle cite
+
+<?php
+
+function sayHiTo($name)
+{
+    $name = 'Raphael';
+    echo 'Salut ' . $name . PHP_EOL;
+ 
+}
+
+$name = 'Anthony';
+
+function sayHi()
+{
+    echo 'Salut ' . $name . PHP_EOL;
+}
+
+
+// Affiche "Anthony"
+echo $name . PHP_EOL;
+
+// Affichera un warning car la variable $name n'est pas définie dans la fonction
+echo sayHi();
+
+// Affiche "Salut Raphael" car la valeur de la variable $name est modifiée à l'intérieur de la fonction
+sayHiTo($name);
+
+// Affiche "Anthony" car, même si la variable $name est modifiée à l'intérieur de la fonction sayHiTo, la portée de celle-ci se limite à l'intérieur de la fonction
+echo $name . PHP_EOL;
+
+----> variables globales:
+     Si on doit se servir dans une fonction d'une variable possedant une portee globale (cest a dire une variable declaree en dehors de la fonction), on peut se servir du mot-cle global avant la declaration des variables 
+
+     Autre methode: utiliser le tableau associatif predefini $GLOBALS 
+
+------> variables statiques:
+    sachant que les variables locales (definies dans les fonctions) sont detruites apres l'execution de la fonction, il existe un moyen de conserver la valeur finale de la variable (dans le cas d'un compteur par exemple)
+    on empeche la destruction d'une variable en la precedant du mot cle : static lors de sa declaration 
+    Attention: sa portee sera toujours locale mais sa valeur ne sera pas detruite a la fin de l'execution de la fonction elle sera conservee pour pouvoir etre reutilisee lors d'une prochaine execution; La valeur de cette fonction n'est initialisee qu'au premier appel de la fonction.
+
+    <?php
+
+function countElements()
+{
+    static $count = 0;
+
+    $count++;
+    
+    echo $count . PHP_EOL;
+}
+    
+countElements();
+countElements();
+countElements();
+
+
+********* passage de valeurs par reference:
+
+    <?php
+function sayHiToThenRename(&$name)  // dans cette declaration la variable passee en parametre sera de portee globale
+{
+    echo 'Salut ' . $name . PHP_EOL; // a noter que ici on declare la fonction elle ne s'execute pas encore il faut pour cela appeler la fonction
+
+    $name = 'Laure';
+    echo 'Votre nouveau nom est ' . $name . PHP_EOL;
+}
+
+$name = 'Julie';    // definition de la variable $name
+
+
+echo $name . PHP_EOL; // on echo la variable qu'on vient de declarer donc Julie
+
+sayHiToThenRename($name); // on appelle notre fonction avec $name en global qui vaut julie puis au sein de la fonction on redefinit $name en laure (de maiere globale du coup grace au &) va donc nous afficher salut julie votre nouveau nom est Laure 
+
+echo $name . PHP_EOL; // le changement de la valeur de $name reste Laure car on la changé de maniere globale dans  notre fonction (&)
+?> 
+
+// affiche Julie Salut Julie Votre nouveau nom est Laure Laure 
+
++++ le signe & est necessaire uniquement lors de la declaration de la fonction pas lors de l'appeler
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&& LES FONCTIONS ANONYMES ##############
+
+Egalement appelees CLOSURES 
+une fonction anonyme est une fonction sans nom qui peut etre stockee dans une variable
+
+elles sont utilisees lorsque des fonctions prennent en parametre une autre fonction
+pour appeler une fonction stockee dans une variable il faut appeler la variable suivie de ()
+
+
+<?php
+
+$cube = function($n)
+{
+    return ($n * $n * $n);
+};
+
+// La fonction range permet de générer un tableau contenant un intervalle d'éléments
+$array = range(1, 5);
+
+// Affichera la valeur au cube de tous les éléments du tableau
+print_r(array_map($cube, $array));
+
+Nous pouvons egalement utiliser une variable exterieure avec le mot cle use 
+
+<?php
+
+$by = 5;
+$multiplyBy = function ($n) use ($by)
+{
+    return ($n * $by);
+};
+
+$array = range(1, 5); // permet de creer un tableau indexé contenant les valeurs de 1 a 5 
+print_r(array_map($multiplyBy, $array));
+
+
+Déclarez un tableau contenant des nombres entiers de 1 à 27, de trois en trois.
+
+À l'aide de la fonction array_map, ajoutez 7 à chacun des éléments du tableau. Le chiffre que vous ajoutez à chacun des éléments devra être paramétrable.
+
+<?php
+
+$numberToAdd = 7;
+$add = function ($n) use ($numberToAdd)
+{
+    return ($n + $numberToAdd);
+};
+
+$array = range(1, 27, 3);
+print_r(array_map($add, $array));
