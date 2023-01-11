@@ -1,0 +1,391 @@
+_________ MODIFICATION DES DONNEES UTILISATEURS_________
+
+la variable $_GET = via url
+
+donnees modifiables dans l'url
+
+les requetes POST
+sont modifiables avec des outils comme postman et les requetes peuvent etre modifiees et on peut avec cURL executer une requete malveillante:
+
+if ($_POST['admin'] === '1') {
+    // On autorise la suppression
+}
+
+
+curl --request POST \
+  --url 'https://www.example.com/article.php?id=1&action=delete' \
+  --header 'content-type: application/x-www-form-urlencoded' \
+  --data admin=1
+
+
+
+surcharger la variable qui recoit les donnees de $_POST avec les donnees de $_SESSION par exemple est beaucoup plus secure 
+
+
+__________ LES ERREURS DE DONNEES____________
+
+sans aller jusqu'a l'elevation des privileges, les donnees incoherentes par rapport a ce qui pourrait etre attendu comme une date de naissance mal formatee
+
+
+ -------> Depassement de valeurs
+    une des premieres erreurs recurrentes est un manque de controle sur les depassements de valeurs comme les dates par exemple ou l'age d'un utilisateur ou encore l'affichage des donnees 
+exemple: affichage d'une liste d'elements par lot de 10 20 ou 30 ce nombre est defini directement dans un parametre de l'URL      https://www.example.com/list?count=10.
+
+$count = $_GET['count'];
+for ($i = 0; $i < $count; $i++) {
+    echo 'Item n°'.$i.'<br>';
+}
+
+l'utilisateur peut modifier cette valeur et definir par exemple la valeur 10000
+cela peut nuire a la performance de l'application
+il faut gerer les cas ou la valeur est incorrecte 
+solution possible:
+
+$count = $_GET['count'];
+$count = in_array($count, [10, 20, 30]) ? $count : 10;  // cette ligne permet de securiser l'app
+for ($i = 0; $i < $count; $i++) {
+    echo 'Item n°'.$i.'<br>';
+}
+
+ici dessus on verifie que la valeur du nombre d'elements par page est bien comprise dans la liste des valeurs suivantes: 10 20 30
+
+
+----------> Problemes de typage:
+
+en cas d'incoherence entre la valeur attendue et la valeur recue cela peut provoquer une erreur
+
+il sera donc necessaire de verifier le typage des donnees :
+
+===== depuis php 7 il est possible de typer les donnees d'entree et de retour des differentes fonctions 
+
+public function getEmail(): ?string
+public function setEmail(?string $email): self
+
+===== verifier le type de donnees avec l'utilisation de fonctions (is_numeric, ctype_*, etc)
+
+is_numeric($_GET['count']);
+ctype_digit($_GET['count']);
+
+====== Absence de donnees :
+
+utiliser la fonction isset() , il convient de traiter cette problematique par un message d'erreur ou une valeur par defaut 
+
+$count = $_GET['count'] ?? 10;
+$count = in_array($count, [10, 20, 50]) ? $count : 10;
+for ($i = 0; $i < $count; $i++) {
+    echo 'Item n°' . $i;
+}
+
+explication de ?? (doc)
+<?php
+// Récupére la valeur de $_GET['utilisateur'] retourne 'aucun'
+// s'il n'existe pas.
+$identifiant = $_GET['utilisateur'] ?? 'aucun';
+// Ceci est équivalent à :
+$identifiant = isset($_GET['utilisateur']) ? $_GET['utilisateur'] : 'aucun';
+
+L'operateur?? (operateur de coalescence des nuls) est un operateur de comparaison entre deux valeurs, celle de gauche et celle de droite. Il renvoi la valeur de droite si la valeur de gauche est dite nullish(null  ou indefined ) sinon renvoie la valeur de gauche
+
+ex: 
+<code>
+<?php 
+$var;  //variable undefined
+null ?? 'test'; //renvoi test
+$var ?? 'test'; //renvoi test
+1234 ?? 'test'; //renvoi 1234
+</code>
+
++++++ LES EXCEPTIONS: 
+
+moyen de gerer les erreurs php
+
+si une exception est detectee  cette instruction va recuperer l'erreur, le traitement en cours sera suspendu et celle ci tentera de gerer l'erreur
+Dans le cas contraire le code sera execute normalement et le bloc catch n'interviendra pas 
+
+    <?php
+	try {
+	   // Essayer de faire quelque chose
+	}
+	catch(Exception $e) {
+	   // Si une erreur se produit, on arrive ici
+	}
+
+
+  les donnees doivent etre verifiees avant utilisation. cela consiste a verifier l'existence, le typage et enfin les valeurs possibles 
+
+  exercice
+  <?php
+
+$posts = [
+	1 => ['title' => 'Comment sécuriser mon application ?', 'createdAt' => new \DateTime('2020-04-06')],
+	['title' => 'Comment récupérer un paramètre de mon URL ?', 'createdAt' => new \DateTime('2020-03-12')],
+	['title' => 'Comment récupérer le contenu de mon formulaire ?', 'createdAt' => new \DateTime('2020-02-04')],
+];
+
+// la valeur de id doit etre un entier strictement superieur a 0
+if (!ctype_digit($_GET['id']) || $_GET['id'] <= 0) {
+    die('Une erreur est survenue. Merci de réessayer.');
+}
+
+$id = (int) $_GET['id'];
+
+// l'article doit exister
+if (!isset($posts[$id])) {
+    die('Une erreur est survenue. Merci de réessayer.');
+}
+
+$post = $posts[$id];
+
+echo 'L\'article "'.$post['title'].'" a été publié le '.$post['createdAt']->format('d/m/Y').'.';
+
+__________ LES ATTAQUES XSS ET CSRF ____________
+
+******** ATTAQUES XSS 
+
+c'est une injection de code html visant a etre affichee dans le navigateur d'un internaute pour effectuer des operations a son insu.
+example:
+$commentaireUtilisateur = "<script>alert('Une faille XSS')</script>";
+echo $commentaireUtilisateur;
+
+
+
+++ solutions :
+
+filtrer les caracteres speciaux html
+=> la fonction php native htmlspecialschar() permet de convertir les caracteres html speciaux afin qu'ils ne soient pas directement interpretés par les navigateurs
+
+
+//////ATTENTION!!!!\\\\\\\\ la fonction htmlspecialschar() de php accepte en tout 4 parametres :
+
+. la chaine a encoder 
+. un masque permettant d'indiquer comment les guillemets sont gerés (on peut utiliser des constantes pour le decrire) 
+. l'encodage de la chaine (depuis php 5 c'est utf 8)
+. un booleen indiquant si on veut encoder les entités html existantes ( on peut l'omettre le plus souvent)
+!!!!!!!!!!!!
+Toutes le valeurs convienent parfaitement a l'echappement de caracteres html hormis pour la seconde,
+en effet la valeur par defaut du masque, soit ENT_COMPAT | ENT_HTML401 n'encode pas les simples guillemets. Pour les prendre en charge il ne faudra pas oublier de changer le masque pour ENT_QUOTES
+!!!!!!!!!!!
+
+
+$commentaireUtilisateur = "<strong>Mon commentaire</strong>";
+echo htmlspecialchars($commentaireUtilisateur, ENT_QUOTES);
+// Affichera "<strong>Mon commentaire</strong>" et non "Mon commentaire" en gras.
+
+
+
+**** Difference entre htmlentities() et htmlspecialchars()
+htmlspecialchars() convertit les caracteres speciaux d'une chaine en entités HTML ex si on a <br> dans notre chaine, cette fonction va la convertir en br.
+
+htmlentities() va convertir tous les caracteres speciaux d'une chaine en entites html meme ceux n'ayant aucun rapport avec le langage html
+
+
+
+
+
+
+=> l'utilisation d'un template tel que twig permet de securiser par defaut l'affichage de donnees
+
+______BREF:
+---> les attaques XSS ont lieu lors de l'affichage de donnees non protegees. Le principe est d'executer du code Javascript sur les navigateurs
+---> les moteurs de template ou certaines methode natives php permettent de s'en protéger
+
+
+
+************* Attaques CSRF :
+ CROSS SITE REQUEST FORGERY:
+ cette attaque ne fonctionne que si l'utilisateur est concerné 
+ le pirate va envoyer une requette http a l'utilisateur innocent, la requete peut etre cachee dans un formulaire une image, un mail etc
+ Cette requete effectuera des actions internes non desirees sur un site par les utilisateurs sans qu'ils s'en appercoivent. 
+
+ ++++++++ SOLUTIONS:
+
+ . controler le comportement des cookies de session avec SameSite 
+ . Ajouter une clé d'authentification unique (token anti-CSRF)
+ . Ajouter la double authentification / demander la verification par mail
+
+
+
+ ___________ L'ENVOI DE FICHIER______________
+
+Les fichiers peuvent contenir du code malveillant 
+exemple ce script php qui scanne les fichiers d'un repertoire:
+
+
+ <?php
+		    $dir = '/tmp'; //Nom de votre dossier
+		    $files = scandir($dir);//Retourne tous les dossiers et les fichiers contenus dans un tableau
+		    print_r($files);//Affiche le contenu du dossier
+		?>
+
+
+++++++++++++ SOLUTIONS :
+
+1. Il convient de valider qu'il n'y a pas d'erreur dans la superglobale $_FILES concernant le fichiers
+
+      function isUploadSuccessful(array $uploadedFile): bool {
+          return isset($uploadedFile['error']) && $uploadedFile['error'] === UPLOAD_ERR_OK;
+      }
+
+      if (!isUploadSuccessful($_FILES['uploaded_file'])) {
+    throw new RuntimeException('Error while uploading file.');
+      }
+
+2. Ensuite il convient de verifier que la taille du fichier ne depasse pas la taille maximale:
+
+      function isUploadSmallerThan2M(array $uploadedFile): bool {
+          return $uploadedFile['size'] < 2000000;
+      }
+
+      if (!isUploadSmallerThan2M($_FILES['uploaded_file'])) {
+          throw new RuntimeException('File is too big.');
+      }
+
+3. Verifier le type de fichier. Ne pas se fier à l'extension du fichier ou a la valeur de :
+  $_FILES['uploaded_file']['type']   car type va juste contenir l'extension ! 
+  interdire le telechargement de fichiers dangereux comme les fichiers php ou shell
+  ---> Pour cela il faut se baser sur le type MIME du fichier
+
+      function isMimeTypeAuthorized(array $uploadedFile): bool {
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->file($uploadedFile['tmp_name']);
+
+        return in_array($mimeType, ['image/jpeg', 'image/png', 'image/gif'], true);
+      }
+
+
+       (!isMimeTypeAuthorized($_FILES['uploaded_file'])) {
+        throw new RuntimeException('Invalid file mime type.');
+      }
+
+
+4. Nous pouvons aussi verifier que le fichier se telecharge bien en generant un nom de fichier unique
+   (il faut se mefier de la valeur de $_FILES['uploaded_file']['name'])
+
+    function getExtensionFromMimeType(string $mimeType): ?string {
+    switch ($mimeType) {
+        case 'image/jpeg':
+            return 'jpg';
+        case 'image/png':
+            return 'png';
+        case 'image/gif':
+            return 'gif';
+        default:
+            return null;
+    }
+}
+
+function moveUploadedFile(array $uploadedFile): bool {
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mimeType = $finfo->file($uploadedFile['tmp_name']);
+
+    return move_uploaded_file(
+        $uploadedFile['tmp_name'],
+        sprintf('./uploads/%s.%s',
+            sha1_file($uploadedFile['tmp_name']),
+            getExtensionFromMimeType($mimeType)
+        )
+    );
+}
+
+if (!moveUploadedFile($_FILES['uploaded_file'])) {
+    throw new RuntimeException('Impossible to upload file.');
+}
+
+
+********* BREF:
+
+le telechargement de fichiers sans controle est dangereux pour les applications.
+Pour les securiser il faut verifier plusieurs criteres tels que les erreurs d'upload et le type MIME du fichier, son poids et faire en sorte de pouvoir stocker le fichier sur le serveur quel que soit son nom
+
+
+_____________EXERCICE__________________
+
+
+
+À vous de mettre en place la fonction d'upload de fichiers qui va vérifier son bon téléchargement. Voici le code non sécurisé :
+
+
+function moveUploadedFile(array $uploadedFile): bool {
+    move_uploaded_file(
+        $uploadedFile['tmp_name'],
+        sprintf('./uploads/%s', $_FILES['upfile']['name'])
+    );
+}
+
+moveUploadedFile($_FILES['uploaded_file']);
+
+echo 'Upload OK';
+
+//Pensez à vérifier que :
+
+L'upload n'a pas d'erreurs
+
+Le fichier ne pèse pas plus d'un mégaoctet
+
+Le fichier est bien un fichier PNG
+
+Le fichier est correctement déplacé dans le répertoire d'upload avec un nom sécurisé
+
+# 1
+function isUploadSuccessful(array $uploadedFile): bool {
+    return isset($uploadedFile['error']) && $uploadedFile['error'] === UPLOAD_ERR_OK;
+}
+
+# 2
+function isUploadSmallerThan1M(array $uploadedFile): bool {
+    return $uploadedFile['size'] < 1000000;
+}
+
+# 3
+function isMimeTypeAuthorized(array $uploadedFile): bool {
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mimeType = $finfo->file($uploadedFile['tmp_name']);
+
+    return $mimeType === 'image/png';
+}
+
+# 4
+function getExtensionFromMimeType(string $mimeType): ?string {
+    switch ($mimeType) {
+        case 'image/png':
+            return 'png';
+        default:
+            throw new RuntimeException('Unsupported mime type');
+    }
+}
+
+function moveUploadedFile(array $uploadedFile): bool {
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mimeType = $finfo->file($uploadedFile['tmp_name']);
+
+    return move_uploaded_file(
+        $uploadedFile['tmp_name'],
+        sprintf('./uploads/%s.%s',
+            sha1_file($uploadedFile['tmp_name']),
+            getExtensionFromMimeType($mimeType)
+        )
+    );
+}
+
+# 1
+if (!isUploadSuccessful($_FILES['uploaded_file'])) {
+    throw new RuntimeException('Error while uploading file.');
+}
+
+# 2
+if (!isUploadSmallerThan1M($_FILES['uploaded_file'])) {
+    throw new RuntimeException('File is too big.');
+}
+
+# 3
+if (!isMimeTypeAuthorized($_FILES['uploaded_file'])) {
+    throw new RuntimeException('Invalid file mime type.');
+}
+
+# 4
+if (!moveUploadedFile($_FILES['uploaded_file'])) {
+    throw new RuntimeException('Impossible to upload file.');
+}
+
+echo 'Upload OK';
+

@@ -1,0 +1,237 @@
+********** $_SERVER *************
+
+A l'interieur de cette variable sont stockés:
+-les informations sur la requete recue: get ou post, IP du client, date et heure de la requete ....
+-les informations sur le script php en charge de traiter la requete: nom du fichier, chemin vers ce fichier
+
+
+ce script permet d'afficher toutes le informations presentes dans $_SERVER:
+
+<?php
+foreach ($_SERVER as $key => $serv) {
+    echo "[$key] = $serv<br>";
+}
+
+les donnees les plus utilisees :
+REMOTE_ADDR:  adresse IP du client, utile pour connaitre le nombre de visiteurs uniques d'une site 
+
+HTTP_USER_AGENT: infos sur le navigateur client (nom, version), utile par exemple pour identifier un pb survenu sur un navigateur en particulier 
+
+REQUEST_METHOD: indique si la requete est GET ou POST.
+
+HTTP_REFERER: indique si la page d'ou la requete a ete demandee permet de controler l'origine de la requete et eventuellement de bloquer celles qui ne viendraient pas d'un endroit precis.
+
+//\\ ATTENTION LES VALEURS PEUVENT DIFFERER SELON LES SERVEURS
+
+pour verifier : phpinfo()
+
+**************** $_ENV***************
+ce sont les variables d'environnement serveur, 
+$_ENV stocke des informations sur l'environnement d'execution global.
+
+
+getenv()
+[si la superglobale n'a pas ete declaree il est cependant possible de lire les variables d'environnement grace a la fonction getenv()]
+
+<?php
+
+foreach (getenv() as $key => $value) {
+    echo "[$key] => $value<br>";
+}
+
+il est possible de cibler la recuperation d'une variable specifique en passant son nom en parametre ---> exemple: getenv('PATH')
+
+-------------------> Definir ses propres variables d'environnement
+
+putenv('nouvelle-variable=test') // la nouvelle variable aura pour valeur test 
+
+**** Quand est ce qu'on utilise les variables d'environnement?
+        = determiner le contexte d'execution  d'un script: developpement, qualification, preproduction, production... 
+
+        Il s'agit d'un element qui pourrait etre configuré au niveau d'une variable d'environnement
+
+
+<?php
+  switch ($_ENV['CONTEXTE']) {
+    case 'DEVELOPPEMENT':
+      echo 'serveur de développement';
+      break;
+    case 'QUALIFICATION':
+      echo 'serveur de recette interne';
+      break;
+    case 'PRE-PRODUCTION':
+      echo 'serveur de recette client';
+      break;
+    case 'PRODUCTION':
+      echo 'serveur de production';
+      break; 
+    default:  
+      echo 'Autre serveur';
+  }
+?>
+
+        => determiner les informations de connexion a la base de donnees 
+        Pour des aspects de securité les identifiants de base de donnees ne doivent pas etre inscrits directement dans les scripts PHP, ces identifiants pourraient egalement varier selon le serveur sur lequel est execute un script.
+        il est alors preferable de configurer des variables d'environnement.
+
+     <?php
+  switch ($_ENV['CONTEXTE']) {
+    case 'DEVELOPPEMENT':
+      echo 'serveur de développement';
+      break;
+    case 'QUALIFICATION':
+      echo 'serveur de recette interne';
+      break;
+    case 'PRE-PRODUCTION':
+      echo 'serveur de recette client';
+      break;
+    case 'PRODUCTION':
+      echo 'serveur de production';
+      break; 
+    default:  
+      echo 'Autre serveur';
+  }
+?> 
+
+////////////LES COOKIES \\\\\\\\\\\
+
+DEFINITION DE COOKIE:
+un cookie est une information envoyee par le serveur HTTP au client, generalement sous format texte
+Ce dernier conserve ces informations sur sa machine pendant un temps defini qui seront renvoyees au serveur a chaque requete HTTP
+Ces elements sont definis et stockes cote client pour un domaine en particulier.
+
+La  communication des cookies se fera par le protocole HTTP via les entetes cookie pour l'envoi de la requete et set-cookie pour l'envoi de la reponse 
+
+Le cookie sera ensuite accessible sur toutes les pages car echange lors de chaque requete emises par le client 
+
+Les utilisateurs peuvent decider de supprimer les cookies ce qui peut entrainer des comportements tels que la deconnexion d'un site 
+
+___SYNTAXE: 
+Techniquement un cookie est defini en php grace a la methode setcookie()
+
+setcookie() accepte plusieurs parametres:
+
+==>name: le nom du cookie
+
+==>value: la valeur du cookie
+
+==>expires: la date d'expiration du cookie (facultatif, par defaut expire a la fermeture du navigateur)
+
+==>path: les repertoires pour les quels le cookie est disponible(facultatif, par defaut le repertoire ou il a ete defini)
+
+==>domain: le domaine pour lequel le cookie est disponible(facultatif, par defaut le domaine ou il a ete defini)
+
++ du point de vue securite la methode accepte deux parametres :
+==> secure: transmission du cookie par le protocole HTTPS 
+
+==> httponly: cookie accessible uniquement par le protocole HTTP\HTTPS 
+
+
+
+exemple:
+<?php
+
+setcookie('moncookie', 'premier cookie');
+
+
+fonctionnement:
+
+lors d'echanges entre le client et le serveur le cookie est transmis par le client dans l'entete de la requete HTTP 
+
+Le cookie est ensuite renvoyé par le serveur dans l'entete de la reponse HTTP 
+
+
+exemple d'un cookie expirant dans un jour:
+
+<?php
+
+setcookie('username', 'JohnDoe', time() + 86400);
+
+
+explication:
+username est le nom du cookie
+JohnDoe sa valeur 
+time()+86400 indique que le cookie va expirer un jour apres sa creation
+
++++++ effacer un cookie:
+<?php
+
+setcookie('username', '', time() - 60);
+ 
+l'astuce pour supprimer un cookie est de le redefinir sans sa valeur et avec une date d'expiration passée (ici 60 sec avant sa creation)
+
+******* Une fois le cookie cree:
+
+le cookie pourra etre utilise cote serveur grace a la superglobale $_COOKIE
+Il s'agit d'un tableau associatif dont les cles sont des noms de cookies
+
+///\\\\ ATTENTION:
+Une fois que les cookies ont ete crees, ils ne seront plu accessibles que lors du prochain chargement de page , dans le tableau $_COOKIE
+
+__________ LEGISLATION________
+recueil d'un consentement pour permettre le stockage chez l'utilisateur: il s'agit souvent d'un bandeau rappelant la loi avec un bouton d'acceptation ou de refus
+
+Le consentement n'est valable que pdt 13 mois max (doit etre a nouveau soumis passe ce delai)
+
+Tous les cookies ne sont pas concernes , les cookies techniques necessaires au bon fonctionnement d'un site ne requierent pas le consentement de l'utilisateur 
+
+La superglobale $_COOKIE permettra d'utiliser les cookies : if ($_COOKIE['stayConnect']).
+
+***********LES SESSIONS*******
+
+superglobale: $_SESSION 
+
+Les donnees d'une session sont stockees sur le serveur contrairement aux cookies qui sont stockes sur le pc client
+
+cependant, un cookie nommé PHPSESSID est cree chez le client et n'est valable que pour la session en cours il a un nom aleatoire et unique qui va permettre de faire le lien avec les donnees serveur
+il n'est valable que pour la session en cours
+
+penser a detruire ce cookie a la fin de la session avec la methode vue plus haut
+
+----> le processus de session:
+
+1. demarrer la session avec session_start()
+    c'est a ce moment la qu'est cree le cookie PHPSSESID 
+
+2. ensuite la page html peut etre construite et $_SESSION utilisee au besoin
+
+3. la derniere etape est la destruction de la session
+    il faut invoquer session_destroy() et supprimer le cookie PHPSESSID  grace a la methode setcookie() vue precedemment
+
+/////\\\\\\   ATTENTION :
+session_start() devra etre appelee au debut de  chaque page ou les sessions seront utilisees 
+
+REMARQUE: session_destroy() permet de definir le moment ou l'endroit ou la session ne doit plus etre utilisee. Pour utiliser a nouveau la session par la suite il suffira de rappeler session_start()  et la session sera recuperee grace au cookie PHPSESSID
+
+POUR EFFACER LES VARIABLES D'UNE SESSION:
+$_SESSION = [];
+
+-----> pour effacer qu'une seule variable nous utiliserons la methode unset():
+unset($_SESSION['variable'])
+
+
+<?php
+session_start();
+
+$_SESSION['username'] = 'JohnDoe';
+echo "Bonjour " . $_SESSION['username'];
+print_r($_SESSION);
+
+$_SESSION = [];
+print_r($_SESSION);
+
+session_destroy();
+
+
+\\\\\\\\\ ATTENTION:
+Si l'utilisateur ne permet pas l'utilisation des cookies, PHP passera les donnees de session  (PHPSESSID) directement via l'URL
+
+À retenir
+session_start() permet de démarrer une session.
+
+$_SESSION est la superglobale qui stocke les variables de session et que nous pourrons utiliser dans notre code.
+
+session_destroy() permet de détruire les variables de session, toutefois nous préférerons écrire $_SESSION = [] ou unset($_SESSION['variable']).
+
+Pour détruire proprement une session, il faut aussi effacer le cookie PHPSESSID : setcookie('PHPSESSID', '', time() - 3600)
+
