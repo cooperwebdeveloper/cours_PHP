@@ -1,0 +1,226 @@
+_____________ MANIPULER DES DOSSIERS_________
+
+Chemin relatif: 
+en partant du repertoire courant
+commence directement par le nom de la ressource ou est précédé de ./ pour le repertoire courant ou ../ pour remonter d'un niveau du repertoire
+
+Chemin d'acces absolu:
+depuis la racine du serveur jusqua la ressource souhaitee 
+
+________La creation de repertoire_______
+
+mkdir()
+--->> parametres: chemin rel ou abs, les droits a lui appliquer en notatio octale, et un bool specifiant si la creation recursive de repertoire est autorisee 
+
+<?php
+
+mkdir('repertoire');
+mkdir('exemple/repertoire/recursif', 0755, true);
+
+
+dossier repertoire cree dans le dossier courant (ligne 1)
+puis un dossier exemple contenant un dossier repertoire dans lequel se trouve un dossier recursif (ligne 2)
+
+
+///\\\\\Attention
+L'affectation des droits par la fonction mkdir()sera toujours dépendante des droits autorisés de PHP.
+
+Deux approches permettent de contourner ce fonctionnement :
+
+La première consiste à utiliser la fonction umask()en lui passant les limitations de droits à appliquer avant l'appel à mkdir(). En effet, cette fonction permet d'interdire certains niveaux d'accès aux ressources créées pour la durée d'exécution d'un script. Cela signifie qu'elle reprend sa valeur par défaut à la fin de chaque script PHP.
+
+La seconde approche est d'utiliser la fonction chmod()qui prend en paramètres le chemin d'accès à la ressource ciblée et les droits, en notation octale, à lui appliquer.
+
+<?php
+
+$oldPermissions = umask(0); 
+// Affecte la valeur actuelle des limitations de droits de fichier dans la variable $oldPermissions et autorise l'utilisation de n'importe quel niveau de permission grâce à la valeur 0.
+
+
+mkdir('repertoireAvecUmask', 0777); 
+// Crée un répertoire dans le répertoire courant avec des droits de lecture, écriture et exécution pour tous.
+z
+
+umask($oldPermissions ); 
+// Réaffecte l'ancienne valeur  des limitations de droits de fichier pour les cas où le script continue.
+
+<?php
+
+mkdir('repertoireAvecChmod', 0777); 
+// Crée un répertoire dans le répertoire courant avec des droits de lecture, écriture et exécution pour tous si la valeur par défaut de restriction des droits de PHP l'autorise.
+
+chmod('repertoireAvecChmod', 0777); 
+// Change les droits du répertoire pour correspondre à ceux souhaités quelles que soient les restrictions de PHP.
+
+
+________ LA SUPPRESSION DE REPERTOIRE______
+
+
+rmdir()  params---> chemin vers le repertoire (attention cela fonctionne que si le repertoire est vide et si nous avons les bons droits)
+
+______PARCOURIR UN REPERTOIRE______
+
+scandir()   ----> params: chemin du repertoire a parcourir et un entier precisant l'ordre de tri des elements retournés
+
+Cette fonction renvoie les resultats sous forme de tableau qu'il faudra ensuite parcourir
+pour effectuer des operations sur le contenu du repertoire cible
+
+<?php
+
+mkdir('repertoire');
+mkdir('exemple/repertoire/recursif', 0755, true);
+// cree un dossier repertoire et une arborescence de dossiers a la racine du dossier courant puis 
+
+
+
+$results = scandir ('./');
+foreach($results as $value) {
+  echo $value.' ';
+}
+//recupere le contenu du repertoire courant et affiche les valeurs de chaque element obtenu
+
+echo PHP_EOL;  // saut de ligne
+// le repertoire courant contient donc un element exemple, une ressource main.php (notre script) et un element repertoire
+
+
+$results = scandir('exemple/repertoire');
+foreach($results as $value) {
+  echo $value.' ';
+}
+// un parcours du contenu du dossier repertoire contenu dans exemple montre ensuite qu'il contient un element recursif
+
+
+///\\\\    ATTENTION: 
+Au sein des systemes Unix chaque repertoire contient une reference vers lui meme materialisee par un . et une reference vers son repertoire parent materialisee par ..
+
++++++ Lors du parcours des elements d'un repertoire la fonction is_dir() peut etre apelee afin de determiner si l'element en cours est un repertoire et ainsi prevoir des traitements specifiques pour chaque type d'elements trouvés 
+
+mkdir('repertoire');
+mkdir('exemple/repertoire/recursif', 0755, true);
+
+$results = scandir ('./');
+foreach($results as $value) {
+  if (is_dir($value)) {
+    echo $value." est un répertoire \n";
+  } else {
+    echo $value." n'est pas un répertoire \n";
+  }
+}
+
+//
+. est un répertoire
+.. est un répertoire
+exemple est un répertoire
+main.php n'est pas un répertoire
+repertoire est un répertoire
+
+
+__ BREF
+
+PHP offre des fonctions permettant la gestion de répertoires, ainsi que de leurs droits grâce aux fonctions :
+
+mkdir() pour la création d'un répertoire,
+
+rmdir() pour la suppression d'un répertoire,
+
+is_dir() pour déterminer s'il s'agit d'un répertoire ou non,
+
+scandir() pour récupérer le contenu d'un dossier.
+
+<?php
+$users = ['bill', 'bob', 'joe'];
+$users = ['mathilde', 'nicolas', 'frank'];
+
+foreach ($users as $user) {
+    if (!is_dir($user)) {
+        mkdir(strtolower($user));
+    }
+}
+
+$directories = scandir('.');
+// je cree une variable avec le contenu de scandir('.') qui scanne le repertoire courant 
+
+foreach ($directories as $directory) {
+    if ($directory !== '.' && $directory !== '..' && is_dir($directory) && !in_array($directory, $users)) {
+        rmdir($directory);
+    }
+}
+// traduction de la derniere ligne: 
+    pour chaque element de $directories (repertoire courant)
+    SI l'element n'est pas l'element courant ET qu'il n'est pas dans le repertoire parent ET que c'est bien un dossier ET qu'il n'est pas dans le dans $users alors:
+    cree un dossier a son nom
+
+
+
+
+
+
+_________MANIPULER DES FICHIERS_____________
+
+ressources 
+une ressource est une variable contenant une reference vers une ressource externe
+ref vers une connexion a une base de donnees ou une ref vers un fichier 
+une reference vers une ressource est toujours creee lors de l'ouverture de la ressource externe ciblee 
+Pour liberer de la memoire il est necessaire de s'assurer de sa fermeture lsq les traitements voulus sont termines 
+Si c'est pas fait php gardera ouvert un flux referençant la ressource donnee 
+
+*** les ressources sont des variables speciales contenant une reference vers une ressource externe. 
+*** les ressources sont creees par des variables speciales 
+
+
+
+*****OUVRIR UN FICHIER 
+
+is_file() ---> return true s'il s'agit d'un fichier 
+                -----> param :chemin de la ressource externe
+
+fopen() ---> param: chemin du fichier souhaite et le mode d'ouverture voulu 
+            on obtient ainsi une ressource php permettant l'acces au fichier 
+
+
+<?php
+
+var_dump(is_file('fichier.txt'));
+$result = fopen('fichier.txt', 'r');
+var_dump($result);
+
+// le code ci dessus ouvre le fichier fichier.txt dans le repertoire courant et affiche le resultat obtenu, qui est une ressource PHP de type stream.
+
+true
+resource(5) of type (stream)
+
+
+------ fopen()------
+2eme parametre : une ch de car = mode d'ouverture
+
+r : ouvrir un fichier en lecture seule, le pointeur de la ressource est placé au debut du fichier 
+
+w : en ecriture seule = efface le contenu du fichier et place le pointeur de la ressource au debut du fichier et cree celui ci s'il n'existe pas 
+
+x : creer et ouvrir un fichier en ecriture seule, mais genere une erreur si le fichier existe deja. Si le fichier existe deja.
+Si le fichier n'exister pas fopen() tentera de le creer 
+
+c : ouvrir un fichier en ecriture seule.si le fichier n'existe pas il sera cree 
+
+a : ouvrir le fichier en ecriture seule et place le pointeur de la ressource a la fin du fichier 
+
+********  REFERMER UN FICHIER 
+
+fclose() ----> param: la ressource php vers le fichier cible 
+            -----> renvoie un booleen representant son succes
+
+<?php
+
+$close = fclose($result);
+var_dump($close, $result);
+//ici la ressource est fermee 
+
+bool(true) // succes de la fermeture 
+resource(5) of type (Unknown)
+//suite au succes de la fermeture la ressource n'a plus de pointeur valide 
+
+******* BREF:
+ouverture et fermeture de ressources avec is_file(), fopen() et fclose() stockees dans des variables 
+
+
+

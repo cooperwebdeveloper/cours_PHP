@@ -1,0 +1,244 @@
+_________ TIMESTAMP UNIX __________
+
+
+fin des systemes 32bits le 19 janvier 2038 a 3h14 et 9sec du mat
+
+Manipuler les dates est complique avec les formats les fuseaux horaires les annees bisextiles heures d'ete etc
+
+Du coup, les developpeurs du monde entier utilisent le timestamp unix qui representent les secondes ecoulees depuis le 1er janvier 1970 
+
+var_dump(1898085167 > 1898336292) // affiche bool(false)
+
+
+trier des dates en timestamp est facile avec la fonction sort() de php, au  prealable on aura mis les dates a comparer dans un tableau!
+
+Timestamp --> on manipule des entiers tres grands: au niveau de la memoire de l'ordi les nombres sont stockes en binaire ---> du coup le nombre en binaire est stocké dans un bit -----> les systemes sont limites par le nb de bytes du systeme -----> du coup les systeme 32bytes sont beaucoup plus limités.-----> lsq ces sys vont atteindre cette limite ils vont crasher et afficher la date du 1er jan 1970
+alors que les sys 64 bytes peuvent aller jusqua l'an 272 milliard!
+
+
+site en ligne pour convertir les dates en timestamp ---> 123timestamp.fr
+
+exercice:
+
+effectuer un tri dans le tableau afin de ne conserver que les valeurs inferieures a $comparaisonTimestamp
+
+
+
+<?php
+
+$timestamps = [1654863436, 1407673368, 1581337036, 1644495436, 1399724236, 1586521368, 1628598168];
+
+$comparisonTimestamp = 1586521036;
+
+indice: utiliser la fonction array_filter et creer une fonction de comparaison
+        mot clé use afin d'utiliser un parametre externe dans votre fonction de comparaison.
+
+array_filter() : filtre les elements d'un tableau grace a une fonction de rappel
+    --> elle prend en param le tableau a trier, la fonction de rappel, un flag indiquant quels sont les arguments a envoyer a la fonction de rappel: ce flag peut etre:
+            -> ARRAY_FILTER_USE_KEY :passer la cle comme seul argument
+            -> ARRAY_FILTER_USE_BOTH: passer a la fois la clé et la valeur
+            --> 0 : par defaut, passera la VALEUR comme seul argument de la fonction de rappel
+
+1. je cree une fonction de comparaison: (je la stocke dans une variable pour m'en servir de callback avec array_filter()):
+
+ 
+    $comparisonFunction = function ($timestamp) use ($comparisonTimestamp){
+        return $timestamp <= $comparisonTimestamp;
+    }
+
+    print_r(array_filter($timestamps, $comparisonFunction)); 
+
+    // comme nous avons pas precisé de flag, array_filter() va prendre les valeurs du tableau $timestamp
+    // puis va leur appliquer la fonction $comparisonFilter
+    // du coup chaque valeur du tableau $timestamps va etre stocké dans la variable $timestamp
+    // le mot clé use permet de rajouter un parametre fixe 
+    // return?
+
+
+    ___________ LE TIMESTAMP EN PHP________________
+
+********* RECUPERER LA DATE ACTUELLE:
+
+---> la fonction time() retourne la date courante du serveur au format timestamp
+---> la fonction microtime() retourne la date courante du serveur au format timestamp unix en precisant les microsecondes rajouter true en parametre permet d'avoir un nb plus parlant
+
+********* CONVERTIR UNE DATE AU FORMAT TIMESTAMP UNIX:
+
+----> mktime() permet de recuperer le timestamp d'une date voulue mais elle est plus courament utilisee pour calculer le nombre de secondes entre deux dates donnees (il faut donc donner deux timestamp)
+        parametres à mettre dans l'ordre! : mktime(heures, minutes, secondes, mois, jour, annee)
+
+    /\  le parametre heure est obligatoire, tous les autres parametres laisses vides apres la definition de l'heure prendront la valeur courante au moment de l'utilisation de la fonction. 
+    Un parametre peut etre positif ou negatif, la valeur 0 represente l'equivalent de minuit 
+    -2 represente -2 heures du point de depart du jour actuel soit 22h horaires
+    mktime(9) correspond a 9 heures de ce jour les autres parametres etant laissés vides ils prendront la valeur correspondant au moment de l'appel de la fonction .
+    pour mettre un date une heure avant il suffit de mettre en parametre heure -1
+    mais ATTENTION! pour mettre un mois avant il faut mettre 0 car si on met -1 on retourne 2 mois avant
+ +++++ Pour calculer le timestamp d'aujourd'hui : mktime(0,0,0)
+       Pour calculer le timestamp d'aujourd'hui minuit: mktime(12,0,0)
+
+
+
+<code>
+<?php
+
+// On calcul le timeStamp et on le met au format souhaité avec date()
+echo "Réalisé le 02/12/2021 à 14h15 : ".date('Y-m-d H:i:s', mktime(-2))."<br>";
+// affiche Réalisé le 02/12/2021 à 14h15 : 2021-12-01 22:15:32
+
+echo "Réalisé le 02/12/2021 à 14h15 : ".date('Y-m-d H:i:s', mktime(2));
+// affiche Réalisé le 02/12/2021 : 2021-12-01 02:15:32
+
+?>
+
+</code>
+
+
+<html>
+  <body>
+    <?php      
+      echo '03/01/2020 00:00:00 : '.mktime(0, 0, 0, 12, 34, 2019).'<br>'; //Ajout de (34-31) jours au 1er janvier 2020
+      echo '01/12/2018 00:00:00 : '.mktime(0, 0, 0, 0, 1, 2019).'<br>'; // Soustraction d'un mois depuis le 01/01/2019
+      echo '01/11/2018 00:00:00 : '.mktime(0, 0, 0, -1, 1, 2019).'<br>'; // Soustraction de deux mois depuis le 01/01/2019
+      echo '01/01/2020 00:00:00 : '.mktime(0, 0, 0, 1, 1, 2020).'<br>';
+      echo'01/01/2020 00:00:00 : '. mktime(0, 0, 0, 1, 1, 20); // Format d'année sur deux chiffres
+    ?> 
+  </body>
+</html>
+
+
+/\ la valeur 0 pour les composants de jour ou de mois correspond a une soustraction de 1 par rapport a la composante de niveau superieur
+
+
+calculer le temps d'execution d'un algorithme:
+<?php
+
+$start = microtime(true);
+
+$result = 1;
+
+for ($i = 1; $i <= 10000000; $i++) {
+	$result = $i * $result;
+}
+
+echo 'Script terminé en '.(microtime(true) - $start).' secondes';
+
+
+
+
+
+***************** AFFICHER UNE DATE DEPUIS UN TIMESTAMP UNIX:
+
+----> date() 
+---> parametres: une ch de car representant le format de date souhaité 
+
+            ex: 'd/m/Y H:i:s'    les minutes c'est i car m c'est month
+                                 le jour, le mois, heures, min, sec c'est a deux chiffres l'annee a 4 chiffres 
+                et optionnellement une date au format timestamp UNIX
+<?php
+// Aujourd'hui, le 10 Mars 2001, 5:16:18 pm, Fuseau horaire 
+// Mountain Standard Time (MST)
+ 
+$today = date("F j, Y, g:i a");                   // March 10, 2001, 5:16 pm
+$today = date("m.d.y");                           // 03.10.01
+$today = date("j, n, Y");                         // 10, 3, 2001
+$today = date("Ymd");                             // 20010310
+$today = date('h-i-s, j-m-y, it is w Day');       // 05-16-18, 10-03-01, 1631 1618 6 Satpm01
+$today = date('\i\t \i\s \t\h\e jS \d\a\y.');     // It is the 10th day (10ème jour du mois).
+$today = date("D M j G:i:s T Y");                 // Sat Mar 10 17:16:18 MST 2001
+$today = date('H:m:s \m \e\s\t\ \l\e\ \m\o\i\s'); // 17:03:18 m est le mois
+$today = date("H:i:s");                           // 17:16:18
+$today = date("Y-m-d H:i:s");                     // 2001-03-10 17:16:18 (le format DATETIME de MySQL)
+?>
+
+
+
+  IL EST POSSIBLE DE COMBINER date() et mktime() pour realiser des operations sur les composantes d'une date:
+<?php
+  echo '03/01/2020 00:00:00 : '.date('d/m/Y H:i:s', mktime(0, 0, 0, 12, 34, 2019)).'<br>';
+  // 3/01/2020 00:00:00 :  3/01/2020 00:00:00
+  echo '01/12/2018 00:00:00 : '.date('d/m/y h:i:s', mktime(0, 0, 0, 0, 1, 2019)).'<br>';
+  // 01/12/2018 00:00:00 : 01/12/2018 12:00:00
+  echo '01/11/2018 00:00:00 : '.date('l jS \of F Y h:i:s A', mktime(0, 0, 0, -1, 1, 2019));
+  // 01/11/2018 : Thursday 1st of November 2018 12:00:00 AM
+?> 
+ 
+
+ <html>
+  <body>
+    <?php      
+      echo 'Demain : '.date('Y/m/d H:i:s', mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'))).'<br>';
+      echo 'Le mois dernier : '.date('Y/m/d H:i:s', mktime(0, 0, 0, date('m') - 1, date('d'), date('Y')));
+    ?> 
+  </body>
+</html>
+
+exercice:
+<?php
+
+// 1
+echo 'Nous sommes en semaine '.date('W')  . PHP_EOL;;
+
+// 2
+echo 'La date d\'aujourd\'hui au format ISO 8601 est : '.date('c', mktime(0, 0, 0))  . PHP_EOL;;
+
+// 3
+$nextXmas = mktime(0, 0, 0, 12, 25, date('Y') + 1);
+echo 'Le 25 décembre '.date('Y', $nextXmas).' nous serons un '.date('l', $nextXmas) . PHP_EOL;;
+
+
+
+
+
+
+exercice defi:
+
+
+
+<html>
+  <head>
+    <title>PHP Test</title>
+  </head>
+  <body>
+<?php
+
+$currentMonth = (int) date('m');
+$currentYear = date('Y');
+$numDaysInMonth = (int) date('t');
+$firstDayOfMonth = (int) date('N', mktime(0, 0, 0, $currentMonth, 1, $currentYear));
+
+?>
+<table>
+    <caption><?php echo date('m/Y') ?></caption>
+    <thead><tr><th>L</th><th>M</th><th>M</th><th>J</th><th>V</th><th>S</th><th>D</th></tr></thead>
+    <tbody>
+        <tr>
+            <?php
+
+            if (1 !== $firstDayOfMonth) {
+                echo '<td colspan="' . ($firstDayOfMonth - 1) . '"></td>';
+            }
+            
+            for ($i = 1; $i <= $numDaysInMonth; $i++) {
+                echo '<td>'.$i.'</td>';
+                
+                if ((int) date('N', mktime(0, 0, 0, $currentMonth, $i, $currentYear)) === 7) {
+                    echo '</tr><tr>';
+                }
+            }
+            
+            $daysLeft = ($numDaysInMonth + $firstDayOfMonth) % 7;
+            if (0 !== $daysLeft) {
+                echo '<td colspan="' . ((7 - $daysLeft) + 1) . '"></td>';
+            }
+
+            ?>
+        </tr>
+    </tbody>
+</table>
+
+    
+    <script src="https://replit.com/public/js/replit-badge.js" theme="blue" defer></script> 
+  </body>
+</html>
+
+
